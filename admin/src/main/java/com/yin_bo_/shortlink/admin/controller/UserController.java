@@ -1,6 +1,8 @@
 package com.yin_bo_.shortlink.admin.controller;
 
 
+import com.yin_bo_.shortlink.admin.common.convention.Result;
+import com.yin_bo_.shortlink.admin.common.convention.Results;
 import com.yin_bo_.shortlink.admin.dto.resp.UserRespDTO;
 import com.yin_bo_.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,8 @@ public class UserController {
     * 根据用户名查找用户
     */
     @GetMapping("/user/{username}")
-    public UserRespDTO getUserByUsername(@PathVariable("username") String username){
-        return userService.getUserByName(username);
+    public Result<UserRespDTO> getUserByUsername(@PathVariable("username") String username){
+        UserRespDTO result = userService.getUserByName(username);
+            return Results.success(result);
     }
 }
