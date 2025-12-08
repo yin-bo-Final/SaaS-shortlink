@@ -3,7 +3,10 @@ package com.yin_bo_.shortlink.admin.common.enums;
 import com.yin_bo_.shortlink.admin.common.convention.errorcode.IErrorCode;
 
 public enum UserErrorCodeEnum implements IErrorCode {
-    USER_NOT_EXIST("B000200","用户不存在");
+    USERNAME_EXIST_ERROR("A000201","用户名被占用"),
+    USER_NOT_EXIST("A000200","用户不存在"),
+    USER_SAVE_ERROR("B000111","用户信息保存失败");
+
 
     private final String code;
 
