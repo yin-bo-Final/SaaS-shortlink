@@ -3,7 +3,10 @@ package com.yin_bo_.shortlink.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yin_bo_.shortlink.admin.dao.entity.UserDO;
 import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.UserRespDTO;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 /*
@@ -32,4 +35,8 @@ public interface UserService extends IService<UserDO> {
     //这里使用的参数名是requestParam，因为参数是一整个对象，要是叫什么DTO就不太好理解
     void register(UserRegisterReqDTO requestParam);
 
+
+    void updateInfo(@RequestBody UserUpdateInfoReqDTO requestParam);
+
+    void updateUsername(UserUpdateUsernameReqDTO requestParam);
 }

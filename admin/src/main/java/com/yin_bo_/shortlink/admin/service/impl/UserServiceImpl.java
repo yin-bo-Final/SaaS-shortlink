@@ -7,6 +7,8 @@ import com.yin_bo_.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.yin_bo_.shortlink.admin.dao.entity.UserDO;
 import com.yin_bo_.shortlink.admin.dao.mapper.UserMapper;
 import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.UserRespDTO;
 import com.yin_bo_.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +78,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 lock.unlock();
             }
         }
+    }
+
+    @Override
+    public void updateInfo(UserUpdateInfoReqDTO requestParam) {
+        //todo 这里之后改为使用用户登录态比如说redis里获取id来查询用户数据
+        UserDO userDO = getById(requestParam.getId());
+        if (userDO == null) {
+            throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
+        }
+        UserDO updateBean = BeanUtil.toBean(requestParam, UserDO.class);
+        updateById(updateBean);
+    }
+
+    @Override
+    public void updateUsername(UserUpdateUsernameReqDTO requestParam) {
+        if (isUsernameOccupied(requestParam.getUsername())) {
+            throw new ClientException(UserErrorCodeEnum.USERNAME_EXIST_ERROR);
+        }
+        String newUsername = requestParam.getUsername();
+
+        //todo 这里之后改为使用用户登录态比如说redis里获取id来查询用户数据
+        UserDO userDO = getById(requestParam.getId());
+        if (userDO == null) {
+            throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
+        }
+        UserDO updatedBean = BeanUtil.toBean(requestParam, UserDO.class);
+        updateById(updatedBean);
+        userRegisterCachePenetrationBloomFilter.add(newUsername);
     }
 }

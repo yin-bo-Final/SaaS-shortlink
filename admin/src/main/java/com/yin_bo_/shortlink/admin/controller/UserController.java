@@ -4,6 +4,8 @@ package com.yin_bo_.shortlink.admin.controller;
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.convention.Results;
 import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.UserRespDTO;
 import com.yin_bo_.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,30 @@ public class UserController {
     @PostMapping("/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.register(requestParam);
+        return Results.success();
+    }
+
+
+    /**
+     * 用户修改除了用户名以外的个人信息
+     * @param requestParam 除了username以外用户全部信息
+     * @return 用户修改成功
+     */
+    @PutMapping("/user/update/info")
+    public Result<Void> updateInfo(@RequestBody UserUpdateInfoReqDTO requestParam){
+        userService.updateInfo(requestParam);
+        return Results.success();
+    }
+
+
+    /**
+     * 用户修改用户名
+     * @param requestParam 用户username
+     * @return  用户修改成功
+     */
+    @PutMapping("/user/update/username")
+    public Result<Void> updateUsername(@RequestBody UserUpdateUsernameReqDTO requestParam){
+        userService.updateUsername(requestParam);
         return Results.success();
     }
 }

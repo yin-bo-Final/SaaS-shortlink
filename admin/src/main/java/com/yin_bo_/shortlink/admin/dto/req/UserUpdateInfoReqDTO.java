@@ -4,23 +4,17 @@ import lombok.Data;
 
 
 /**
- * 用户注册请求参数
+ * 用户根据用户id修改其他信息请求DO
  */
 @Data
-public class UserRegisterReqDTO {
+public class UserUpdateInfoReqDTO {
+
 
 
     /**
      * id
      */
     private Long id;
-
-
-
-    /**
-     * 用户名
-     */
-    private String username;
 
     /**
      * 密码
