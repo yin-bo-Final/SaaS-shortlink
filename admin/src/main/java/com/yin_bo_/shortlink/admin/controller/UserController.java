@@ -82,9 +82,21 @@ public class UserController {
      * @param requestParam 用户登录请求信息
      * @return 用户登录结果
      */
-    @PutMapping("/user/login")
+    @PostMapping("/user/login")
     public Result<String>login (@RequestBody UserLoginReqDTO requestParam) {
         String token = userService.login(requestParam);
         return Results.success(token);
+    }
+
+
+    /**
+     *
+     * @param requestParam
+     * @return
+     */
+    @PostMapping("/user/logout")
+    public Result<Void>logout (@RequestParam String username ,@RequestParam String token){
+        userService.logout(username,token);
+        return Results.success();
     }
 }
