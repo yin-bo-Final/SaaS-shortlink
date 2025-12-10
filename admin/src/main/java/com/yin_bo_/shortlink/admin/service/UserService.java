@@ -2,6 +2,7 @@ package com.yin_bo_.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yin_bo_.shortlink.admin.dao.entity.UserDO;
+import com.yin_bo_.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
@@ -39,4 +40,7 @@ public interface UserService extends IService<UserDO> {
     void updateInfo(@RequestBody UserUpdateInfoReqDTO requestParam);
 
     void updateUsername(UserUpdateUsernameReqDTO requestParam);
+
+
+    String login(UserLoginReqDTO requestParam);
 }

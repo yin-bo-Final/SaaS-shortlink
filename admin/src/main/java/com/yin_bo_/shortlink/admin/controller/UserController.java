@@ -3,6 +3,7 @@ package com.yin_bo_.shortlink.admin.controller;
 
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.convention.Results;
+import com.yin_bo_.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
 import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
@@ -73,5 +74,17 @@ public class UserController {
     public Result<Void> updateUsername(@RequestBody UserUpdateUsernameReqDTO requestParam){
         userService.updateUsername(requestParam);
         return Results.success();
+    }
+
+
+    /**
+     * 用户登录
+     * @param requestParam 用户登录请求信息
+     * @return 用户登录结果
+     */
+    @PutMapping("/user/login")
+    public Result<String>login (@RequestBody UserLoginReqDTO requestParam) {
+        String token = userService.login(requestParam);
+        return Results.success(token);
     }
 }
