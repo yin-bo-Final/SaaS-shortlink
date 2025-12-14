@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yin_bo_.shortlink.admin.common.biz.user.UserContext;
 import com.yin_bo_.shortlink.admin.common.convention.exception.ClientException;
 import com.yin_bo_.shortlink.admin.common.enums.GroupErrorCodeEnum;
 import com.yin_bo_.shortlink.admin.dao.entity.GroupDO;
@@ -26,10 +27,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper,GroupDO> implement
 
     @Override
     public void saveGroup(String groupName) {
-        //todo 从上下文获取username
-        String username = null;
+        String username = UserContext.getUsername();
         int MaxTry = 3;
-
         for (int attempt = 1; attempt <= MaxTry; attempt++) {
             try {
                 GroupDO groupDO = new GroupDO();
@@ -52,10 +51,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper,GroupDO> implement
 
     @Override
     public List<GroupRespDTO> listGroup() {
-        // todo 获取用户名
-        //这里我们没做上下文 先获取所有 也就是isnull(username)就可以
         Page<GroupDO> page = query()
-                .isNull("username")
+                .eq("username", UserContext.getUsername())
                 .eq("del_flag", 0)
                 .orderByAsc("sort_order")
                 .page(new Page<>(1, 10));
