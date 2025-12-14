@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Data
 @TableName("t_group")
 public class GroupDO {
-    //@Entity.Column(id = true)
     /**
      * ID
      */

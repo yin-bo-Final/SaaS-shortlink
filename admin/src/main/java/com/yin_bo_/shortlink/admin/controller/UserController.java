@@ -3,10 +3,10 @@ package com.yin_bo_.shortlink.admin.controller;
 
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.convention.Results;
-import com.yin_bo_.shortlink.admin.dto.req.UserLoginReqDTO;
-import com.yin_bo_.shortlink.admin.dto.req.UserRegisterReqDTO;
-import com.yin_bo_.shortlink.admin.dto.req.UserUpdateInfoReqDTO;
-import com.yin_bo_.shortlink.admin.dto.req.UserUpdateUsernameReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserReqDTO.UserLoginReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserReqDTO.UserRegisterReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserReqDTO.UserUpdateInfoReqDTO;
+import com.yin_bo_.shortlink.admin.dto.req.UserReqDTO.UserUpdateUsernameReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.UserRespDTO;
 import com.yin_bo_.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +80,7 @@ public class UserController {
     /**
      * 用户登录
      * @param requestParam 用户登录请求信息
-     * @return 用户登录结果
+     * @return 用户登录结果 token
      */
     @PostMapping("/user/login")
     public Result<String>login (@RequestBody UserLoginReqDTO requestParam) {
@@ -90,9 +90,10 @@ public class UserController {
 
 
     /**
-     *
-     * @param requestParam
-     * @return
+     * 用户登出
+     * @param username 用户名
+     * @param token  用户Token
+     * @return 用户登出成功
      */
     @PostMapping("/user/logout")
     public Result<Void>logout (@RequestParam String username ,@RequestParam String token){

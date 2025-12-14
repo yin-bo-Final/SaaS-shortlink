@@ -1,4 +1,4 @@
-package com.yin_bo_.shortlink.admin.dto.req;
+package com.yin_bo_.shortlink.admin.dto.req.UserReqDTO;
 
 import lombok.Data;
 
