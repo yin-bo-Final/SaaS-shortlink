@@ -9,6 +9,7 @@ import com.yin_bo_.shortlink.admin.common.convention.exception.ClientException;
 import com.yin_bo_.shortlink.admin.common.enums.GroupErrorCodeEnum;
 import com.yin_bo_.shortlink.admin.dao.entity.GroupDO;
 import com.yin_bo_.shortlink.admin.dao.mapper.GroupMapper;
+import com.yin_bo_.shortlink.admin.dto.req.GroupReqDTO.GroupSortReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.GroupRespDTO;
 import com.yin_bo_.shortlink.admin.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -80,5 +81,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper,GroupDO> implement
                 .set("del_flag", 1)
                 .update();
     }
+
+    @Override
+    public void sortGroup(List<GroupSortReqDTO> requestParam) {
+        requestParam.forEach(each -> {
+            update()
+                    .set("sort_order", each.getSortOrder())
+                    .eq("gid", each.getGid())
+                    .eq("del_flag", 0)
+                    .update();
+        });
+    }
+
 
 }

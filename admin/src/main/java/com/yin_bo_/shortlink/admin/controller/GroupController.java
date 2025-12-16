@@ -2,6 +2,7 @@ package com.yin_bo_.shortlink.admin.controller;
 
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.convention.Results;
+import com.yin_bo_.shortlink.admin.dto.req.GroupReqDTO.GroupSortReqDTO;
 import com.yin_bo_.shortlink.admin.dto.resp.GroupRespDTO;
 import com.yin_bo_.shortlink.admin.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,13 @@ public class GroupController {
     @PostMapping("/group/remove")
     public Result<Void> removeGroup(@RequestParam String gid) {
         groupService.removeGroup(gid);
+        return Results.success();
+    }
+
+
+    @PostMapping("/group/sort")
+    public Result<Void> sortGroup(@RequestBody List<GroupSortReqDTO> requestParam) {
+        groupService.sortGroup(requestParam);
         return Results.success();
     }
 }
