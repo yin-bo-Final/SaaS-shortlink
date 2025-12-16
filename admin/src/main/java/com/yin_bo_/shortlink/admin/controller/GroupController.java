@@ -35,4 +35,11 @@ public class GroupController {
     public Result<List<GroupRespDTO>> listGroup() {
         return Results.success(groupService.listGroup());
     }
+
+
+    @PostMapping("/group/update")
+    public Result<Void> updateGroup(@RequestParam String groupName,@RequestParam String gid) {
+        groupService.updateGroup(groupName,gid);
+        return Results.success();
+    }
 }

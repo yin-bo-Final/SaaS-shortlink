@@ -60,4 +60,14 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper,GroupDO> implement
         return BeanUtil.copyToList(page.getRecords(), GroupRespDTO.class);
     }
 
+    @Override
+    public void updateGroup(String groupName, String gid) {
+        update()
+                .eq("username", UserContext.getUsername())
+                .eq("del_flag", 0)
+                .eq("gid", gid)
+                .set("name", groupName)
+                .update();
+    }
+
 }
