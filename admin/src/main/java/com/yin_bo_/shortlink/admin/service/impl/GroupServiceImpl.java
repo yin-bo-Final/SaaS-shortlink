@@ -70,4 +70,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper,GroupDO> implement
                 .update();
     }
 
+    @Override
+    public void removeGroup(String gid) {
+        //这里用软删除
+        update()
+                .eq("username", UserContext.getUsername())
+                .eq("del_flag", 0)
+                .eq("gid", gid)
+                .set("del_flag", 1)
+                .update();
+    }
+
 }

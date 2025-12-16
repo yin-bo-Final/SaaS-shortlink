@@ -42,4 +42,11 @@ public class GroupController {
         groupService.updateGroup(groupName,gid);
         return Results.success();
     }
+
+
+    @PostMapping("/group/remove")
+    public Result<Void> removeGroup(@RequestParam String gid) {
+        groupService.removeGroup(gid);
+        return Results.success();
+    }
 }
