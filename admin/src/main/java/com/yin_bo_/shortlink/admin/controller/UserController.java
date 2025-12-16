@@ -91,13 +91,11 @@ public class UserController {
 
     /**
      * 用户登出
-     * @param username 用户名
-     * @param token  用户Token
      * @return 用户登出成功
      */
     @PostMapping("/user/logout")
-    public Result<Void>logout (@RequestParam String username ,@RequestParam String token){
-        userService.logout(username,token);
+    public Result<Void>logout (){
+        userService.logout();
         return Results.success();
     }
 }

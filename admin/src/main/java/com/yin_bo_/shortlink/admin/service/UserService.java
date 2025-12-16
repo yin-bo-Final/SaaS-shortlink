@@ -44,5 +44,6 @@ public interface UserService extends IService<UserDO> {
 
     String login(UserLoginReqDTO requestParam);
 
-    void logout(String username, String token);
+
+    void logout();
 }
