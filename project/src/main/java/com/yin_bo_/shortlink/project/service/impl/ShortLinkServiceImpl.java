@@ -20,12 +20,22 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public ShortLinkCreateRespDTO createShortlink(ShortLinkCreateReqDTO requestParam) {
 
+        //将原始url哈希成短链接
         String shortlink = HashUtil.hashToBase62(requestParam.getOriginUrl());
+
+        //将请求参数转化成 shortLinkDO 实体类
         ShortLinkDO shortLinkDO = BeanUtil.toBean(requestParam, ShortLinkDO.class);
+
+        //设置实体类短链接和 完整url
         shortLinkDO.setShortUri(shortlink);
         shortLinkDO.setFullShortUrl(requestParam.getDomain() + "/" + shortlink);
+
+        //将实体类存储到数据库
         save(shortLinkDO);
+
+        //新建相应参数的实体类
         ShortLinkCreateRespDTO respParam = new ShortLinkCreateRespDTO();
+        //给相应实体类设置 gid 完整url 原始url
         respParam.setGid(shortLinkDO.getGid());
         respParam.setFullShortUrl(shortLinkDO.getFullShortUrl());
         respParam.setOriginUrl(shortLinkDO.getOriginUrl());

@@ -26,7 +26,7 @@ public class UserController {
     * 根据用户名查找用户
     */
     @GetMapping("/user/{username}")
-    public Result<UserRespDTO> getUserByUsername(@PathVariable("username") String username){
+    public Result<UserRespDTO> getUserByUsername(@PathVariable String username){
         UserRespDTO result = userService.getUserByName(username);
             return Results.success(result);
     }
@@ -36,7 +36,7 @@ public class UserController {
      * 查询用户名是否被占用
      */
     @GetMapping("/user/isOccupied/{username}")
-    public Result<Boolean> isUsernameOccupied(@PathVariable("username") String username){
+    public Result<Boolean> isUsernameOccupied(@PathVariable String username){
         return Results.success(userService.isUsernameOccupied(username));
     }
 
@@ -46,7 +46,7 @@ public class UserController {
      * @param requestParam 用户信息参数
      * @return 用户注册成功
      */
-    @PostMapping("/user")
+    @PostMapping("/user/register")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.register(requestParam);
         return Results.success();
@@ -67,7 +67,7 @@ public class UserController {
 
     /**
      * 用户修改用户名
-     * @param requestParam 用户username
+     * @param requestParam username
      * @return  用户修改成功
      */
     @PutMapping("/user/update/username")

@@ -33,7 +33,8 @@ public class UserTransmitFilter implements Filter {
     private static final String ADMIN_API_PREFIX = "/api/shortlink/v1/";
 
     // 登录接口路径 (放行)
-    private static final String LOGIN_PATH = "/api/shortlink/v1/user/login";
+    private static final String LOGIN_PATH = "/api/shortlink/v1/admin/user/login";
+    private static final String REGISTER_PATH =  "/api/shortlink/v1/admin/user/register";
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -45,7 +46,7 @@ public class UserTransmitFilter implements Filter {
         String requestPath = request.getRequestURI();
 
         // 1. 放行登录接口（关键！）
-        if (LOGIN_PATH.equals(requestPath)) {
+        if (LOGIN_PATH.equals(requestPath) || REGISTER_PATH.equals(requestPath)) {
             filterChain.doFilter(request, response);
             return;
         }
