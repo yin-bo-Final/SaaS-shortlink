@@ -28,6 +28,11 @@ public class ShortLinkCreateReqDTO {
 
 
     /**
+     * 网站图标
+     */
+    private String favicon;
+
+    /**
      * 创建类型 0：接口 1：控制台
      */
     private Integer createdType;
@@ -41,6 +46,7 @@ public class ShortLinkCreateReqDTO {
      * 有效期
      */
     private LocalDateTime validDate;
+
 
     /**
      * 描述
