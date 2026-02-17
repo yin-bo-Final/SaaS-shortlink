@@ -11,3 +11,6 @@ spring:
           host: 127.0.0.1
           port: 6379
           password: zhou123quan
+remote:
+  project:
+    base-url: http://127.0.0.1:8001/api/shortlink/v1/project
