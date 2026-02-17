@@ -35,7 +35,7 @@ public class UserController {
     /**
      * 查询用户名是否被占用
      */
-    @GetMapping("/user/isOccupied/{username}")
+    @GetMapping("/isOccupied/{username}")
     public Result<Boolean> isUsernameOccupied(@PathVariable String username){
         return Results.success(userService.isUsernameOccupied(username));
     }

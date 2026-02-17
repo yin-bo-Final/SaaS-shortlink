@@ -2,11 +2,13 @@ package com.yin_bo_.shortlink.admin.common.biz.user;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.json.JSONUtil;
+import com.google.common.collect.Lists;
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.enums.UserErrorCodeEnum;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.yin_bo_.shortlink.admin.common.constant.RedisCacheConstant.LOGIN;
 
@@ -24,17 +27,17 @@ import static com.yin_bo_.shortlink.admin.common.constant.RedisCacheConstant.LOG
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Order(-100) // 尽量靠前执行（比其他业务过滤器早）
+@Order(-100)
 public class UserTransmitFilter implements Filter {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    // 需要登录的路径前缀
-    private static final String ADMIN_API_PREFIX = "/api/shortlink/v1/";
-
-    // 登录接口路径 (放行)
-    private static final String LOGIN_PATH = "/api/shortlink/v1/admin/user/login";
-    private static final String REGISTER_PATH =  "/api/shortlink/v1/admin/user/register";
+    @Getter
+    private final List<String> IGNORE_URI_PREFIX = Lists.newArrayList(
+            "/api/shortlink/v1/admin/user/login",
+            "/api/shortlink/v1/admin/isOccupied",
+            "/api/shortlink/v1/admin/user/register"
+    );
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -45,14 +48,9 @@ public class UserTransmitFilter implements Filter {
 
         String requestPath = request.getRequestURI();
 
-        // 1. 放行登录接口（关键！）
-        if (LOGIN_PATH.equals(requestPath) || REGISTER_PATH.equals(requestPath)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 2. 只对后台管理接口进行登录校验（可选，更精细控制）
-        if (!requestPath.startsWith(ADMIN_API_PREFIX)) {
+        //放行IGNORE_URI的接口
+        //这里代表的是任何具有这些前缀的路径都被匹配，然后放行
+        if (IGNORE_URI_PREFIX.stream().anyMatch(requestPath::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -67,7 +65,9 @@ public class UserTransmitFilter implements Filter {
                 return;
             }
 
-            // 4. 查询 Redis
+
+
+            // 4. 查询值在Redis 中是否存在
             String redisKey = LOGIN + username;
             Object userInfoObj;
             try {
@@ -113,4 +113,5 @@ public class UserTransmitFilter implements Filter {
                 .setMessage(UserErrorCodeEnum.USER_NOT_LOGINED.message());
         response.getWriter().write(JSONUtil.toJsonStr(result));
     }
+
 }
