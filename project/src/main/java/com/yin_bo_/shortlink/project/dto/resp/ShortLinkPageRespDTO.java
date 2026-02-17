@@ -1,5 +1,6 @@
 package com.yin_bo_.shortlink.project.dto.resp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -52,11 +53,6 @@ public class ShortLinkPageRespDTO {
 
 
     /**
-     * 有效期类型 0：永久有效 1：用户自定义
-     */
-    private Integer validDateType;
-
-    /**
      * 有效期
      */
     private LocalDateTime validDate;
@@ -65,5 +61,29 @@ public class ShortLinkPageRespDTO {
      * 描述
      */
     private String describe;
+
+
+
+    /**
+     * 有效期类型 0：永久有效 1：用户自定义
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Integer validDateType;
+
+
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private LocalDateTime createTime;
+
+    /**
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private LocalDateTime updateTime;
+
+
 
 }
