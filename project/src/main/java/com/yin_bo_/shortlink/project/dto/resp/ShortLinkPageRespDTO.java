@@ -1,6 +1,5 @@
 package com.yin_bo_.shortlink.project.dto.resp;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -65,8 +64,6 @@ public class ShortLinkPageRespDTO {
     /**
      * 描述
      */
-    //这里describe是mysql的关键字，所以我们要转义一下
-    @TableField(value = "`describe`")
     private String describe;
 
 }
