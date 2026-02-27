@@ -2,6 +2,7 @@ package com.yin_bo_.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,8 +10,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yin_bo_.shortlink.project.common.convention.exception.ServiceException;
 import com.yin_bo_.shortlink.project.dao.entity.ShortLinkDO;
 import com.yin_bo_.shortlink.project.dao.mapper.ShortLinkMapper;
+import com.yin_bo_.shortlink.project.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.yin_bo_.shortlink.project.service.ShortLinkService;
@@ -20,9 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 短链接接口实现层
@@ -34,6 +40,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final RBloomFilter<String> ShortUriCreateCachePenetrationBloomFilter;
 
+
+    /**
+     * 创建短链接
+     */
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
 
@@ -63,6 +73,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         return respParam;
     }
 
+
+    /**
+     * 短链接列表
+     */
     @Override
     public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam) {
 
@@ -83,6 +97,23 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             BeanUtil.copyProperties(each, dto);
             return dto;
         });
+    }
+
+    @Override
+    public List<ShortLinkCountQueryRespDTO> listGroupShortLinkCount(@RequestBody ShortLinkCountQueryReqDTO requestParam) {
+        List<String> gids = requestParam.getGids();
+        if (gids == null || gids.isEmpty()) {
+            return List.of();
+        }
+        QueryWrapper<ShortLinkDO> queryWrapper = Wrappers.query(new ShortLinkDO())
+                .select("gid", "count(1) as shortLinkCount")
+                .in("gid",gids)
+                .eq("enable_status",0)
+                .eq("del_flag",0)
+                .groupBy("gid");
+        List<Map<String, Object>> shortLinkCountList = baseMapper.selectMaps(queryWrapper);
+        return BeanUtil.copyToList(shortLinkCountList,ShortLinkCountQueryRespDTO.class);
+
     }
 
 

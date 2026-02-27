@@ -4,8 +4,10 @@ package com.yin_bo_.shortlink.project.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yin_bo_.shortlink.project.common.convention.Result;
 import com.yin_bo_.shortlink.project.common.convention.Results;
+import com.yin_bo_.shortlink.project.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.yin_bo_.shortlink.project.service.ShortLinkService;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 短链接控制层
@@ -45,5 +49,17 @@ public class ShortLinkController {
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
         return Results.success(shortLinkService.pageShortLink(requestParam));
     }
+
+
+    /**
+     * 查询分组内短链接数量
+     * @param requestParam 请求参数
+     * @return 各分组内短链数量
+     */
+    @PostMapping("/link/count")
+    public Result<List<ShortLinkCountQueryRespDTO>> listGroupShortLinkCount(@RequestBody ShortLinkCountQueryReqDTO requestParam) {
+        return Results.success(shortLinkService.listGroupShortLinkCount(requestParam));
+    }
+
 
 }
