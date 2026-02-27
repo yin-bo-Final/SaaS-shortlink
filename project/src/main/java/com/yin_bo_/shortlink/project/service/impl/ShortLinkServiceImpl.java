@@ -3,19 +3,23 @@ package com.yin_bo_.shortlink.project.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yin_bo_.shortlink.project.common.biz.user.UserContext;
 import com.yin_bo_.shortlink.project.common.convention.exception.ServiceException;
 import com.yin_bo_.shortlink.project.dao.entity.ShortLinkDO;
 import com.yin_bo_.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkPageRespDTO;
+import com.yin_bo_.shortlink.project.service.GroupService;
 import com.yin_bo_.shortlink.project.service.ShortLinkService;
 import com.yin_bo_.shortlink.project.toolkit.HashUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 
 /**
  * 短链接接口实现层
@@ -107,7 +113,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     @Override
-    public List<ShortLinkCountQueryRespDTO> listGroupShortLinkCount(@RequestBody ShortLinkCountQueryReqDTO requestParam) {
+    public List<ShortLinkCountQueryRespDTO> listGroupShortLinkCount(ShortLinkCountQueryReqDTO requestParam) {
         List<String> gids = requestParam.getGids();
         if (gids == null || gids.isEmpty()) {
             return List.of();
@@ -121,6 +127,76 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         List<Map<String, Object>> shortLinkCountList = baseMapper.selectMaps(queryWrapper);
         return BeanUtil.copyToList(shortLinkCountList,ShortLinkCountQueryRespDTO.class);
 
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        LambdaUpdateWrapper<ShortLinkDO> wrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+                .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .eq(ShortLinkDO::getGid, requestParam.getGid())
+                .eq(ShortLinkDO::getDelFlag, 0)
+                .eq(ShortLinkDO::getEnableStatus, 0);
+
+
+        if (Objects.nonNull(requestParam.getDomain())) {
+            wrapper.set(ShortLinkDO::getDomain, requestParam.getDomain());
+        }
+        if (Objects.nonNull(requestParam.getOriginUrl())) {
+            wrapper.set(ShortLinkDO::getOriginUrl, requestParam.getOriginUrl());
+        }
+        if (Objects.nonNull(requestParam.getFavicon())) {
+            wrapper.set(ShortLinkDO::getFavicon, requestParam.getFavicon());
+        }
+        if (Objects.nonNull(requestParam.getValidDateType())) {
+            wrapper.set(ShortLinkDO::getValidDateType, requestParam.getValidDateType());
+        }
+        if (Objects.nonNull(requestParam.getValidDate())) {
+            wrapper.set(ShortLinkDO::getValidDate, requestParam.getValidDate());
+        }
+        if (Objects.nonNull(requestParam.getDescribe())) {
+            wrapper.set(ShortLinkDO::getDescribe, requestParam.getDescribe());
+        }
+
+        if (Objects.nonNull(requestParam.getNewGid())) {
+            if (Objects.equals(requestParam.getNewGid(), requestParam.getGid())) {
+                return;
+            }
+
+            String username = UserContext.getUsername();
+            if (username == null) {
+                throw new ServiceException("未获取到用户信息");
+            }
+            if (groupService.existsByGidAndUsername(requestParam.getNewGid(), username)) {
+                throw new ServiceException("目标分组不存在");
+            }
+
+            LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                    .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+                    .eq(ShortLinkDO::getGid, requestParam.getGid())
+                    .eq(ShortLinkDO::getDelFlag, 0)
+                    .eq(ShortLinkDO::getEnableStatus, 0);
+
+
+
+            ShortLinkDO oldRecord = getOne(queryWrapper);
+            if (oldRecord == null) {
+                throw new ServiceException("短链接不存在或已被禁用/删除");
+            }
+
+            // 先物理删除旧记录，再插入新记录，避免唯一索引冲突
+            remove(queryWrapper);
+
+            ShortLinkDO newRecord = BeanUtil.copyProperties(oldRecord, ShortLinkDO.class);
+            newRecord.setId(null);
+            newRecord.setGid(requestParam.getNewGid());
+            newRecord.setCreateTime(LocalDateTime.now());
+            newRecord.setUpdateTime(LocalDateTime.now());
+            save(newRecord);
+            return;
+        }
+
+        update(wrapper);
     }
 
 
