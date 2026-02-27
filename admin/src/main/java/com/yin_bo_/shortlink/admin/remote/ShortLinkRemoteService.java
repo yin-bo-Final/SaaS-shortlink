@@ -6,6 +6,7 @@ import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -51,5 +52,10 @@ public class ShortLinkRemoteService {
         String url = projectBaseUrl + "/link/count";
         return httpClient.post(url, requestParam, new TypeReference<>() {
         });
+    }
+
+    public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        String url = projectBaseUrl + "/link/update";
+        httpClient.post(url, requestParam, new TypeReference<>() {});
     }
 }

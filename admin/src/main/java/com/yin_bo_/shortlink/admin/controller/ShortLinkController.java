@@ -2,10 +2,12 @@ package com.yin_bo_.shortlink.admin.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yin_bo_.shortlink.admin.common.convention.Result;
+import com.yin_bo_.shortlink.admin.common.convention.Results;
 import com.yin_bo_.shortlink.admin.remote.ShortLinkRemoteService;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -51,5 +53,18 @@ public class ShortLinkController {
     public Result<List<ShortLinkCountQueryRespDTO>> listGroupShortLinkCount(@RequestBody ShortLinkCountQueryReqDTO requestParam) {
         return shortLinkRemoteService.listGroupShortLinkCount(requestParam);
     }
+
+
+    /**
+     * 修改短链接
+     * @param requestParam 请求参数
+     * @return 修改成功
+     */
+    @PostMapping("/link/update")
+    public Result<Void> updateGroup(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkRemoteService.updateShortLink(requestParam);
+        return Results.success();
+    }
+
 
 }

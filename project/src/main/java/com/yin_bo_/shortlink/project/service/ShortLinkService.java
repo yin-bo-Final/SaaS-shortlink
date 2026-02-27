@@ -6,6 +6,7 @@ import com.yin_bo_.shortlink.project.dao.entity.ShortLinkDO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.yin_bo_.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -41,4 +42,11 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @return 各分组内短链数量
      */
     List<ShortLinkCountQueryRespDTO> listGroupShortLinkCount(@RequestBody ShortLinkCountQueryReqDTO requestParam);
+
+
+    /**
+     * 修改短链接
+     * @param requestParam 请求参数
+     */
+    void updateShortLink(ShortLinkUpdateReqDTO requestParam);
 }
