@@ -39,6 +39,7 @@ import java.util.Map;
 public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
 
     private final RBloomFilter<String> ShortUriCreateCachePenetrationBloomFilter;
+    private final GroupService groupService;
 
 
     /**
@@ -46,7 +47,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
-
+        String username = UserContext.getUsername();
+        if (username == null) {
+            throw new ServiceException("未获取到用户信息");
+        }
+        if (groupService.existsByGidAndUsername(requestParam.getGid(), username)) {
+            throw new ServiceException("目标分组不存在");
+        }
         //将原始url哈希成短链接
         String shortLink = generateSuffix(requestParam);
         String fullShortLink = requestParam.getDomain() + "/" + shortLink;
