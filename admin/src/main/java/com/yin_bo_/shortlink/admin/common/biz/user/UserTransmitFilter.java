@@ -54,6 +54,11 @@ public class UserTransmitFilter implements Filter {
             filterChain.doFilter(request, response);
             return;
         }
+        // 放行短链接跳转入口（例如 /22zbXb）
+        if (requestPath.matches("^/[^/]+$")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             String username = request.getHeader("username");

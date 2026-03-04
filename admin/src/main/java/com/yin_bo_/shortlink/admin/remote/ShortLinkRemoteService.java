@@ -10,6 +10,8 @@ import com.yin_bo_.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCountQueryRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.yin_bo_.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -57,5 +59,11 @@ public class ShortLinkRemoteService {
     public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
         String url = projectBaseUrl + "/link/update";
         httpClient.post(url, requestParam, new TypeReference<>() {});
+    }
+
+    public void restoreUrl(String shortUri, HttpServletRequest request, HttpServletResponse response) {
+        String redirectBaseUrl = projectBaseUrl.replace("/api/shortlink/v1/project", "");
+        String url = redirectBaseUrl + "/" + shortUri;
+        httpClient.relayRedirect(url, request, response);
     }
 }
