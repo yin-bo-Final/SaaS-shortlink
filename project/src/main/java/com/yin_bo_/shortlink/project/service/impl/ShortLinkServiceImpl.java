@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yin_bo_.shortlink.project.common.biz.user.UserContext;
 import com.yin_bo_.shortlink.project.common.convention.exception.ServiceException;
 import com.yin_bo_.shortlink.project.dao.entity.ShortLinkDO;
+import com.yin_bo_.shortlink.project.dao.entity.ShortLinkGotoDO;
+import com.yin_bo_.shortlink.project.dao.mapper.ShortLinkGotoMapper;
 import com.yin_bo_.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCountQueryReqDTO;
 import com.yin_bo_.shortlink.project.dto.req.ShortLinkCreateReqDTO;
@@ -46,12 +48,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     private final RBloomFilter<String> ShortUriCreateCachePenetrationBloomFilter;
     private final GroupService groupService;
-
+    private final ShortLinkGotoMapper shortLinkGotoMapper;
 
     /**
      * 创建短链接
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
         String username = UserContext.getUsername();
         if (username == null) {
@@ -72,6 +75,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         try{
             //将实体类存储到数据库
             save(shortLinkDO);
+            //将数据存入路由表
+            ShortLinkGotoDO shortLinkGotoDO = new ShortLinkGotoDO();
+            shortLinkGotoDO.setGid(shortLinkDO.getGid());
+            shortLinkGotoDO.setFullShortUrl(shortLinkDO.getFullShortUrl());
+            shortLinkGotoMapper.insert(shortLinkGotoDO);
         }catch (DuplicateKeyException e){
             log.warn("短链接:{} 重复入库",fullShortLink);
             throw new ServiceException("生成短链接繁忙，请稍后重试");
