@@ -68,7 +68,7 @@ public class ShortLinkController {
      * @return 修改成功
      */
     @PostMapping("/link/update")
-    public Result<Void> updateGroup(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
         shortLinkService.updateShortLink(requestParam);
         return Results.success();
     }

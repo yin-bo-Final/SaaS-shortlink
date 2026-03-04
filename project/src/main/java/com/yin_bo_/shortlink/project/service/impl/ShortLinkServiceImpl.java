@@ -24,6 +24,9 @@ import com.yin_bo_.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.yin_bo_.shortlink.project.service.GroupService;
 import com.yin_bo_.shortlink.project.service.ShortLinkService;
 import com.yin_bo_.shortlink.project.toolkit.HashUtil;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
@@ -31,6 +34,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -204,6 +208,32 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
 
         update(wrapper);
+    }
+
+    @Override
+    public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) throws IOException {
+        String serverName = request.getServerName();
+        String fullShortUrl= serverName + "/" + shortUri;
+        LambdaQueryWrapper<ShortLinkGotoDO> gotoWrapper = Wrappers
+                .lambdaQuery(ShortLinkGotoDO.class)
+                .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+        ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(gotoWrapper);
+        if (shortLinkGotoDO == null){
+            //严谨来说此处需要封控
+            return;
+        }
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
+                .eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid())
+                .eq(ShortLinkDO::getDelFlag, 0)
+                .eq(ShortLinkDO::getEnableStatus, 0);
+        ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
+
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        if (shortLinkDO != null){
+            httpResponse.sendRedirect(shortLinkDO.getOriginUrl());
+        }
+
     }
 
 
