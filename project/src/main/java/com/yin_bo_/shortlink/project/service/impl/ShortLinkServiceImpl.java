@@ -198,7 +198,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             ShortLinkDO newRecord = BeanUtil.copyProperties(oldRecord, ShortLinkDO.class);
             newRecord.setId(null);
             newRecord.setGid(requestParam.getNewGid());
-            newRecord.setCreateTime(LocalDateTime.now());
             newRecord.setUpdateTime(LocalDateTime.now());
             save(newRecord);
             return;
