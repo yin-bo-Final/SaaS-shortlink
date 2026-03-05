@@ -223,35 +223,56 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) throws IOException {
         String serverName = request.getServerName();
-        String fullShortUrl= serverName + "/" + shortUri;
+        String fullShortUrl = serverName + "/" + shortUri;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String cacheKey = String.format(GOTO_SHORT_LINK_KEY, fullShortUrl);
+        String emptyValue = "-";
         //从缓存获得原始连接
-        String originLink = redisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+        String originLink = redisTemplate.opsForValue().get(cacheKey);
 
+        // 空值缓存命中，直接返回
+        if (emptyValue.equals(originLink)) {
+            httpResponse.setStatus(404);
+            return;
+        }
 
-        //缓存中没获取短链接
-        if (StrUtil.isBlank(originLink)){
+        //缓存不存在
+        if (StrUtil.isBlank(originLink)) {
+
+            //判断是否存在于布隆过滤器，如果不存在返回404
+            if (!ShortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
+                httpResponse.setStatus(404);
+                // 写空值缓存，防止穿透
+                redisTemplate.opsForValue().set(cacheKey, emptyValue, GOTO_SHORT_LINK_BLANK_TTL, TimeUnit.SECONDS);
+                return;
+            }
+
             //获取分布式锁
             RLock lock = redissonClient.getLock(String.format(LOCK_GOTO_SHORT_LINK, fullShortUrl));
             boolean locked = false;
 
             try {
                 //上锁
-                locked = lock.tryLock(200,5, TimeUnit.SECONDS); //等待200ms，租期5s
+                locked = lock.tryLock(200, 5, TimeUnit.SECONDS); //等待200ms，租期5s
                 if (!locked) {
                     return;
                 }
 
                 //双重验证
-                originLink = redisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+                originLink = redisTemplate.opsForValue().get(cacheKey);
+                if (emptyValue.equals(originLink)) {
+                    httpResponse.setStatus(404);
+                    return;
+                }
 
-                if (StrUtil.isBlank(originLink)){
+                if (StrUtil.isBlank(originLink)) {
                     LambdaQueryWrapper<ShortLinkGotoDO> gotoWrapper = Wrappers
                             .lambdaQuery(ShortLinkGotoDO.class)
                             .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
                     ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(gotoWrapper);
                     if (shortLinkGotoDO == null) {
-                        //之后进行处理数据穿透
+                        redisTemplate.opsForValue().set(cacheKey, emptyValue, GOTO_SHORT_LINK_BLANK_TTL, TimeUnit.SECONDS);
+                        httpResponse.setStatus(404);
                         return;
                     }
                     LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
@@ -263,12 +284,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
                     if (shortLinkDO != null) {
                         //将短链接加入缓存
-                        redisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),shortLinkDO.getOriginUrl(),GOTO_SHORT_LINK_TTL,TimeUnit.SECONDS);
+                        redisTemplate.opsForValue().set(cacheKey, shortLinkDO.getOriginUrl(), GOTO_SHORT_LINK_TTL, TimeUnit.SECONDS);
 
                         //重定向
                         httpResponse.sendRedirect(shortLinkDO.getOriginUrl());
                         return;
                     }
+                    // 数据库也不存在，写空值缓存
+                    redisTemplate.opsForValue().set(cacheKey, emptyValue, GOTO_SHORT_LINK_BLANK_TTL, TimeUnit.SECONDS);
+                    httpResponse.setStatus(404);
+                    return;
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -283,8 +308,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         if (StrUtil.isNotBlank(originLink)) {
             //重定向
             httpResponse.sendRedirect(originLink);
+        } else if (StrUtil.isBlank(originLink)) {
+            httpResponse.setStatus(404);
         }
-
     }
 
 
