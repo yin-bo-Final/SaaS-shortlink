@@ -2,11 +2,13 @@ package com.yin_bo_.shortlink.admin.remote;
 
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.yin_bo_.shortlink.admin.common.convention.Result;
 import com.yin_bo_.shortlink.admin.common.convention.errorcode.BaseErrorCode;
 import com.yin_bo_.shortlink.admin.common.convention.exception.RemoteException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -40,6 +42,31 @@ public class HttpClient {
 
             String response = request.execute().body();
             return JSONUtil.toBean(response, type, true);
+        } catch (Exception ex) {
+            throw new RemoteException("调用中台接口失败: " + url, ex, BaseErrorCode.REMOTE_ERROR);
+        }
+    }
+
+    public void relayRedirect(String url, HttpServletRequest incomingRequest, HttpServletResponse outgoingResponse) {
+        try {
+            HttpRequest request = HttpRequest.get(url)
+                    .timeout(5000)
+                    .setFollowRedirects(false);
+
+            if (incomingRequest != null) {
+                String host = incomingRequest.getHeader("Host");
+                if (host != null) {
+                    request.header("Host", host);
+                }
+            }
+
+            HttpResponse response = request.execute();
+            outgoingResponse.setStatus(response.getStatus());
+
+            String location = response.header("Location");
+            if (location != null) {
+                outgoingResponse.setHeader("Location", location);
+            }
         } catch (Exception ex) {
             throw new RemoteException("调用中台接口失败: " + url, ex, BaseErrorCode.REMOTE_ERROR);
         }
