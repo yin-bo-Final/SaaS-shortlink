@@ -285,7 +285,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     if (shortLinkDO != null) {
                         //将短链接加入缓存
                         //对短链接缓存加TTL 永久有效期短链接缓存默认一个月，有validDate的短链接缓存是有效期本身
-                        redisTemplate.opsForValue().set(cacheKey, shortLinkDO.getOriginUrl(), getLinkCacheValidDate(shortLinkDO.getValidDate()), TimeUnit.MICROSECONDS);
+                        redisTemplate.opsForValue().set(cacheKey, shortLinkDO.getOriginUrl(), getLinkCacheValidDate(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
 
                         //重定向
                         httpResponse.sendRedirect(shortLinkDO.getOriginUrl());
