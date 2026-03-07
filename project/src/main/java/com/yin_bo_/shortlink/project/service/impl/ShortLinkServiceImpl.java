@@ -47,6 +47,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.yin_bo_.shortlink.project.common.constant.RedisCacheConstant.*;
+import static com.yin_bo_.shortlink.project.toolkit.LinkUtil.getLinkCacheValidDate;
 
 
 /**
@@ -62,7 +63,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkGotoMapper shortLinkGotoMapper;
     private final StringRedisTemplate redisTemplate;
     private final RedissonClient redissonClient;
-
 
     /**
      * 创建短链接
@@ -284,7 +284,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
                     if (shortLinkDO != null) {
                         //将短链接加入缓存
-                        redisTemplate.opsForValue().set(cacheKey, shortLinkDO.getOriginUrl(), GOTO_SHORT_LINK_TTL, TimeUnit.SECONDS);
+                        //对短链接缓存加TTL 永久有效期短链接缓存默认一个月，有validDate的短链接缓存是有效期本身
+                        redisTemplate.opsForValue().set(cacheKey, shortLinkDO.getOriginUrl(), getLinkCacheValidDate(shortLinkDO.getValidDate()), TimeUnit.MICROSECONDS);
 
                         //重定向
                         httpResponse.sendRedirect(shortLinkDO.getOriginUrl());

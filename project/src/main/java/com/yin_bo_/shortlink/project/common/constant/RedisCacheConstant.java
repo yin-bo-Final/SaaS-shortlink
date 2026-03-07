@@ -20,9 +20,9 @@ public class RedisCacheConstant {
 
 
     /**
-     * 短链接 TTL 有效期  这里设置为一天
+     * 永久短链接缓存 TTL 有效期  这里设置为一个月
      */
-    public static final int GOTO_SHORT_LINK_TTL = 86400;
+    public static final Long DEFAULT_SHORT_LINK_CACHE_TTL = 2626560000L;
 
 
     /**
